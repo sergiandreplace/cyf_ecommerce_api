@@ -13,7 +13,9 @@ const pool = new Pool({
 });
 
 app.get("/customers", (req, res) => {
-    res.send("potato")
+    pool.query('SELECT * FROM customers', (error, result) => {
+        res.json(result.rows);
+    });
 })
 
 app.listen(3000, function() {
