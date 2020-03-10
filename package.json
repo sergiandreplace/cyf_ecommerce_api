@@ -1,0 +1,24 @@
+{
+  "name": "cyf-ecommerce-api",
+  "version": "0.0.1",
+  "description": "The wonderful e-commerce API",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "potato": "nodemon server.js"
+  },
+  "keywords": [
+    "e-commerce",
+    "api",
+    "cyf"
+  ],
+  "author": "Sergi",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "pg": "^7.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}
