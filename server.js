@@ -63,6 +63,27 @@ app.get("/customers/:customerId", (req, res) => {
     .catch(err => res.json(err, 500));
 });
 
+// Add a new DELETE endpoint /customers/:customerId to delete an existing customer only if this customer doesn't have orders.
+
+app.delete("/customers/:customerId", (req, res) => {
+  const customerId = req.params.customerId;
+
+  pool
+    .query("select * from orders where customer_id = $1", [customerId])
+    .then(result => {
+      if (result.rows.length > 0) {
+        res.status(400).send("Customer has orders, so can't be deleted");
+        return;
+      }
+
+      pool
+        .query("delete from customers where id = $1", [customerId])
+        .then(() => res.send("customer deleted"))
+        .catch(err => res.json(err, 500));
+    })
+    .catch(err => res.json(err, 500));
+});
+
 app.post("/customers/:customerId/orders", (req, res) => {
   const date = req.body.order_date;
   const reference = req.body.order_reference;
