@@ -163,12 +163,15 @@ app.get("/products", (req, res) => {
   let query =
     "SELECT products.*, suppliers.supplier_name FROM products join suppliers on products.supplier_id = suppliers.id";
 
+  let params = [];
+
   if (productName) {
-    query += ` where products.product_name ilike '%${productName}%'`;
+    params = [`%${productName}%`];
+    query += ` where products.product_name ilike $1`;
   }
 
   pool
-    .query(query)
+    .query(query, params)
     .then(result => res.json(result.rows))
     .catch(err => res.json(err, 500));
 });
