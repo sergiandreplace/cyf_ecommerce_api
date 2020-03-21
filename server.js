@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const { Pool } = require("pg");
 const secrets = require("./secrets");
+const bodyParser = require("body-parser");
 
 const pool = new Pool({
   user: "postgres",
@@ -11,10 +12,28 @@ const pool = new Pool({
   port: 5432
 });
 
+app.use(bodyParser.json());
+
 app.get("/customers", (req, res) => {
   pool
     .query("SELECT * FROM customers")
     .then(result => res.json(result.rows))
+    .catch(err => res.json(err, 404));
+});
+
+app.post("/customers", (req, res) => {
+  const name = req.body.name;
+  const address = req.body.address;
+  const city = req.body.city;
+  const country = req.body.country;
+
+  const query =
+    "INSERT INTO customers(name, address, city, country) VALUES ($1, $2, $3, $4)";
+  const parameters = [name, address, city, country];
+
+  pool
+    .query(query, parameters)
+    .then(result => res.send("Customer created!"))
     .catch(err => res.json(err, 404));
 });
 
