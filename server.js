@@ -12,9 +12,9 @@ const pool = new Pool({
 });
 
 app.get("/customers", (req, res) => {
-  pool.query("SELECT * FROM customers", (error, result) => {
-    res.json(result.rows);
-  });
+  pool.query("SELECT * FROM customers")
+    .then( result => res.json(result.rows))
+    .catch(err => res.json(err, 404))
 });
 
 app.get("/suppliers", (req, res) => {
