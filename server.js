@@ -34,7 +34,7 @@ app.post("/customers", (req, res) => {
   pool
     .query(query, parameters)
     .then(result => res.send("Customer created!"))
-    .catch(err => res.json(err, 404));
+    .catch(err => res.json(err, 500));
 });
 
 app.get("/customers/:customerId", (req, res) => {
@@ -43,6 +43,31 @@ app.get("/customers/:customerId", (req, res) => {
   pool
     .query("SELECT * from customers where id = $1", [customerId])
     .then(result => res.json(result.rows))
+    .catch(err => res.json(err, 500));
+});
+
+app.post("/customers/:customerId/orders", (req, res) => {
+  const date = req.body.order_date;
+  const reference = req.body.order_reference;
+  const customerId = req.params.customerId;
+
+  pool
+    .query("select * from customers where id=$1 ", [customerId])
+    .then(result => {
+      if (result.rows.length == 0) {
+        res.status(404).send("customer does not exist!");
+        return;
+      }
+
+      const query =
+        "INSERT INTO orders (order_date, order_reference, customer_id) VALUES ($1, $2, $3)";
+      const parameters = [date, reference, customerId];
+
+      pool
+        .query(query, parameters)
+        .then(() => res.send("order created"))
+        .catch(err => res.json(err, 500));
+    })
     .catch(err => res.json(err, 500));
 });
 
