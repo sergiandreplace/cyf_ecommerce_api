@@ -84,6 +84,30 @@ app.delete("/customers/:customerId", (req, res) => {
     .catch(err => res.json(err, 500));
 });
 
+/* Add a new GET endpoint /customers/:customerId/orders to load all the orders along 
+  the items in the orders of a specific customer. Especially, the following information 
+  should be returned: order references, order dates, product names, unit prices, suppliers and quantities.
+  */
+
+app.get("/customers/:customerId/orders", (req, res) => {
+  const customerId = req.params.customerId;
+
+  const query =
+    "select orders.order_date , orders.order_reference, products.product_name," +
+    "products.unit_price, order_items.quantity, suppliers.supplier_name " +
+    "from orders join order_items on orders.id=order_items.order_id " +
+    "join products on products.id = order_items.product_id " +
+    "join suppliers on products.supplier_id = suppliers.id " +
+    "where orders.customer_id = $1";
+
+  const params = [customerId];
+
+  pool
+    .query(query, params)
+    .then(result => res.json(result.rows))
+    .catch(err => res.json(err, 500));
+});
+
 app.post("/customers/:customerId/orders", (req, res) => {
   const date = req.body.order_date;
   const reference = req.body.order_reference;
