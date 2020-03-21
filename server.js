@@ -37,6 +37,23 @@ app.post("/customers", (req, res) => {
     .catch(err => res.json(err, 500));
 });
 
+app.put("/customers/:customerId", (req, res) => {
+  const customerId = req.params.customerId;
+  const name = req.body.name;
+  const address = req.body.address;
+  const city = req.body.city;
+  const country = req.body.country;
+
+  const query =
+    "UPDATE customers SET name=$1, address=$2, city=$3, country=$4 where id = $5";
+  const parameters = [name, address, city, country, customerId];
+
+  pool
+    .query(query, parameters)
+    .then(result => res.send("Customer updated!"))
+    .catch(err => res.json(err, 500));
+});
+
 app.get("/customers/:customerId", (req, res) => {
   const customerId = req.params.customerId;
 
