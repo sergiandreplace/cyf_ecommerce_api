@@ -12,9 +12,19 @@ const pool = new Pool({
 });
 
 app.get("/customers", (req, res) => {
-  pool.query("SELECT * FROM customers")
-    .then( result => res.json(result.rows))
-    .catch(err => res.json(err, 404))
+  pool
+    .query("SELECT * FROM customers")
+    .then(result => res.json(result.rows))
+    .catch(err => res.json(err, 404));
+});
+
+app.get("/customers/:customerId", (req, res) => {
+  const customerId = req.params.customerId;
+
+  pool
+    .query("SELECT * from customers where id = $1", [customerId])
+    .then(result => res.json(result.rows))
+    .catch(err => res.json(err, 500));
 });
 
 app.get("/suppliers", (req, res) => {
@@ -24,13 +34,19 @@ app.get("/suppliers", (req, res) => {
 });
 
 app.get("/products", (req, res) => {
-  pool.query(
-    "SELECT products.*, suppliers.supplier_name " +
-      "FROM products join suppliers on products.supplier_id = suppliers.id",
-    (error, result) => {
-      res.json(result.rows);
-    }
-  );
+  const productName = req.query.name;
+
+  let query =
+    "SELECT products.*, suppliers.supplier_name FROM products join suppliers on products.supplier_id = suppliers.id";
+
+  if (productName) {
+    query += ` where products.product_name ilike '%${productName}%'`;
+  }
+
+  pool
+    .query(query)
+    .then(result => res.json(result.rows))
+    .catch(err => res.json(err, 500));
 });
 
 app.listen(3000, function() {
