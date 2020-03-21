@@ -68,6 +68,35 @@ app.get("/products", (req, res) => {
     .catch(err => res.json(err, 500));
 });
 
+app.post("/products", (req, res) => {
+  const name = req.body.product_name;
+  const price = req.body.unit_price;
+  const supplierId = req.body.supplier_id;
+
+  if (!Number.isInteger(price) || price <= 0) {
+    res.status(404).send("Price should be a positive number");
+    return;
+  }
+
+  pool
+    .query("Select * from suppliers where id = $1", [supplierId])
+    .then(result => {
+      if (result.rows.length > 0) {
+        const query =
+          "INSERT INTO products(product_name, unit_price, supplier_id) VALUES ($1, $2, $3)";
+        const parameters = [name, price, supplierId];
+
+        pool
+          .query(query, parameters)
+          .then(() => res.send("Product created"))
+          .catch(err => res.json(err, 404));
+      } else {
+        res.status(404).send("Not valid supplier");
+      }
+    })
+    .catch(err => res.json(err, 404));
+});
+
 app.listen(3000, function() {
   console.log("Server is listening on port 3000. Ready to accept requests!");
 });
